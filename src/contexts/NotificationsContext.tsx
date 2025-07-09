@@ -37,10 +37,10 @@ const NotificationsContext = createContext<NotificationsContextType | null>(null
 
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [browserPermission, setBrowserPermission] = useState<NotificationPermission>('default');
-  const [isInitialized, setIsInitialized] = useState(false);
-  const { isAuthenticated, user } = useAuth();
-  const [hasShownWelcome, setHasShownWelcome] = useState(false);
+  const [, setBrowserPermission] = useState<NotificationPermission>('default');
+  const [, setIsInitialized] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const [, setHasShownWelcome] = useState(false);
 
   // Verificar permissão para notificações do navegador
   useEffect(() => {

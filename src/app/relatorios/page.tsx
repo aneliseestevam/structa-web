@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useData } from '@/contexts/DataContext';
 import { usePermissions } from '@/contexts/PermissionsContext';
@@ -16,18 +16,11 @@ import {
   Download, 
   TrendingUp, 
   BarChart3, 
-  PieChart, 
   DollarSign,
   Building2,
   Package,
   Calendar,
-  Clock,
-  Users,
-  CheckCircle,
-  AlertTriangle,
-  RefreshCw,
-  Target,
-  Activity
+  CheckCircle
 } from 'lucide-react';
 
 // Serviços de relatórios
@@ -51,23 +44,8 @@ export default function RelatoriosPage() {
   const [selectedObraId, setSelectedObraId] = useState<string>('all');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Verificar permissão de acesso
-  if (!hasPermission('view_reports')) {
-    return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
-              <CardTitle>Acesso Negado</CardTitle>
-              <CardDescription>
-                Você não tem permissão para acessar os relatórios.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      </MainLayout>
-    );
-  }
+  // Verificar permissão antes de usar hooks
+  const hasViewReportsPermission = hasPermission('view_reports');
 
   // Dados filtrados por obra
   const filteredData = useMemo(() => {
@@ -215,12 +193,30 @@ export default function RelatoriosPage() {
         'Relatório Gerado', 
         `Relatório ${type} de ${obraNome} foi gerado com sucesso`
       );
-    } catch (error) {
+    } catch {
       showError('Erro', 'Falha ao gerar relatório. Tente novamente.');
     } finally {
       setIsGenerating(false);
     }
   };
+
+  // Verificar permissão de acesso
+  if (!hasViewReportsPermission) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <CardTitle>Acesso Negado</CardTitle>
+              <CardDescription>
+                Você não tem permissão para acessar os relatórios.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>

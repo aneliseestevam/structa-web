@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+
 import { 
   BarChart3, 
   Building2, 
@@ -31,7 +31,7 @@ interface MainLayoutProps {
 export default function MainLayout({ children }: MainLayoutProps) {
   const { user, logout } = useAuth();
   const { connectNotifications } = useDataWithNotifications();
-  const { notifications, unreadCount, addNotification } = useNotifications();
+  const { unreadCount, addNotification } = useNotifications();
   const router = useRouter();
   const pathname = usePathname();
 

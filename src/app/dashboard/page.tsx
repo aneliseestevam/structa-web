@@ -8,7 +8,6 @@ import ExpenseChart from '@/components/charts/ExpenseChart';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useData } from '@/contexts/DataContext';
 import { 
@@ -19,14 +18,9 @@ import {
 } from '@/types';
 import { 
   Building2, 
-  BarChart3, 
-  Calendar, 
-  DollarSign, 
-  Package, 
   TrendingUp, 
   CheckCircle, 
-  AlertTriangle, 
-  RefreshCw 
+  AlertTriangle 
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -259,7 +253,7 @@ export default function DashboardPage() {
                 <SelectContent>
                   <SelectItem value="all">
                     <div className="flex items-center space-x-2">
-                      <BarChart3 className="w-4 h-4" />
+                      <Building2 className="w-4 h-4" />
                       <span>Todas as Obras</span>
                     </div>
                   </SelectItem>
@@ -317,7 +311,6 @@ export default function DashboardPage() {
                 <div className="space-y-1">
                   <div className="text-sm text-gray-600">Prazo</div>
                   <div className="font-medium flex items-center space-x-2">
-                    <Calendar className="w-4 h-4" />
                     <span>{new Date(obraAtual.dataPrevisao).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -396,9 +389,6 @@ export default function DashboardPage() {
                 <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-orange-100 rounded-lg">
-                      <Package className="w-4 h-4 text-orange-600" />
-                    </div>
-                    <div>
                       <span className="font-medium">{item.material}</span>
                       <div className="text-sm text-gray-600">Quantidade: {item.quantidade}</div>
                     </div>
