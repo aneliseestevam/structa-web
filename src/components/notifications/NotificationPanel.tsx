@@ -26,7 +26,11 @@ import {
   X
 } from 'lucide-react';
 
-export default function NotificationPanel() {
+interface NotificationPanelProps {
+  onClose?: () => void;
+}
+
+export default function NotificationPanel({ onClose }: NotificationPanelProps = {}) {
   const { 
     notifications, 
     unreadCount, 
@@ -176,7 +180,10 @@ export default function NotificationPanel() {
               <DropdownMenuItem
                 key={notification.id}
                 className="flex items-start space-x-3 p-3 cursor-pointer"
-                onClick={() => markAsRead(notification.id)}
+                onClick={() => {
+                  markAsRead(notification.id);
+                  onClose?.();
+                }}
               >
                 <div className="flex-shrink-0 mt-0.5">
                   {getNotificationIcon(notification.type)}

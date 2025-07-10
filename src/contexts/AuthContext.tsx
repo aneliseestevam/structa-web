@@ -10,6 +10,7 @@ interface AuthContextData {
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  isHydrated: boolean;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -21,6 +22,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isHydrated, setIsHydrated] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -29,34 +31,48 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Páginas que não precisam de autenticação
   const publicPages = ['/login', '/'];
 
+  // Verificar hidratação e carregar dados do localStorage apenas no cliente
   useEffect(() => {
-    // Verificar se há token no localStorage ao inicializar (apenas no cliente)
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('@structa:token');
-      const userData = localStorage.getItem('@structa:user');
+    const initializeAuth = async () => {
+      try {
+        // Marcar como hidratado
+        setIsHydrated(true);
 
-      if (token && userData) {
-        try {
-          const parsedUser = JSON.parse(userData);
-          setUser({ ...parsedUser, token });
-        } catch (error) {
-          // Se houver erro ao parsear, limpar dados inválidos
-          console.error('Erro ao parsear dados do usuário:', error);
-          localStorage.removeItem('@structa:token');
-          localStorage.removeItem('@structa:user');
+        // Verificar se há token no localStorage (apenas no cliente)
+        const token = localStorage.getItem('@structa:token');
+        const userData = localStorage.getItem('@structa:user');
+
+        if (token && userData) {
+          try {
+            const parsedUser = JSON.parse(userData);
+            setUser({ ...parsedUser, token });
+          } catch (error) {
+            // Se houver erro ao parsear, limpar dados inválidos
+            console.error('Erro ao parsear dados do usuário:', error);
+            localStorage.removeItem('@structa:token');
+            localStorage.removeItem('@structa:user');
+          }
         }
+      } catch (error) {
+        console.error('Erro na inicialização da autenticação:', error);
+      } finally {
+        setIsLoading(false);
       }
-    }
+    };
 
-    setIsLoading(false);
+    initializeAuth();
   }, []);
 
-  // Verificar autenticação e redirecionar se necessário
+  // Verificar autenticação e redirecionar apenas após a hidratação
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && !publicPages.includes(pathname)) {
+    if (!isHydrated || isLoading) return;
+
+    const isPublicPage = publicPages.includes(pathname);
+    
+    if (!isAuthenticated && !isPublicPage) {
       router.push('/login');
     }
-  }, [isLoading, isAuthenticated, pathname, router]);
+  }, [isHydrated, isLoading, isAuthenticated, pathname, router, publicPages]);
 
   const login = async (credentials: LoginCredentials) => {
     try {
@@ -74,8 +90,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         token: 'mock-jwt-token-123456789'
       };
 
-      // Salvar no localStorage (apenas no cliente)
-      if (typeof window !== 'undefined') {
+      // Salvar no localStorage (apenas no cliente e se estiver hidratado)
+      if (isHydrated) {
         localStorage.setItem('@structa:token', mockUser.token);
         localStorage.setItem('@structa:user', JSON.stringify({
           id: mockUser.id,
@@ -94,7 +110,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const logout = () => {
-    if (typeof window !== 'undefined') {
+    // Limpar localStorage apenas se estiver hidratado
+    if (isHydrated) {
       localStorage.removeItem('@structa:token');
       localStorage.removeItem('@structa:user');
     }
@@ -111,6 +128,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         login,
         logout,
         isAuthenticated,
+        isHydrated,
       }}
     >
       {children}

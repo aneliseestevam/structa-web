@@ -60,6 +60,7 @@ interface DataContextType {
 
   // Estado de carregamento
   isLoading: boolean;
+  isHydrated: boolean;
   
   // Função para adicionar notificação
   setNotificationFunction: (fn: NotificationFunction) => void;
@@ -74,14 +75,23 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [movimentacoes, setMovimentacoes] = useState<MovimentacaoEstoque[]>([]);
   const [compras, setCompras] = useState<Compra[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [notificationFunction, setNotificationFunction] = useState<NotificationFunction | null>(null);
 
-  // Carregamento inicial dos dados apenas uma vez
+  // Carregamento inicial dos dados apenas após a hidratação
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Marcar como hidratado
+        setIsHydrated(true);
         setIsLoading(true);
         
+        // Simular delay de carregamento para demonstração
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Em produção, estes dados virão da API
+        // Para desenvolvimento, usar dados mock consistentes
+
         // Mock data - Obras
         const mockObras: Obra[] = [
           {
@@ -566,11 +576,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     // Estado
     isLoading,
+    isHydrated,
     
     // Função para adicionar notificação
     setNotificationFunction,
   }), [
-    obras, etapas, materiais, movimentacoes, compras, isLoading,
+    obras, etapas, materiais, movimentacoes, compras, isLoading, isHydrated,
     addObra, updateObra, deleteObra,
     addEtapa, updateEtapa, deleteEtapa,
     getEtapasByObra, getProgressoObra, getEtapasCompletadas, getEtapasTotal, getProximaEtapa, createEtapasTemplate,
