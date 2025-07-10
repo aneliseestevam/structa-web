@@ -60,6 +60,7 @@ export interface Compra {
   notaFiscal?: string;
   status: 'pendente' | 'aprovada' | 'entregue';
   itens: CompraItem[];
+  processedAt?: Date; // Data de processamento da entrega
   createdAt: Date;
   updatedAt: Date;
 }

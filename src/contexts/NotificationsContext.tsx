@@ -79,6 +79,12 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   }, []);
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
+    // Verificação de segurança para evitar null/undefined
+    if (!notification || typeof notification !== 'object') {
+      console.error('Invalid notification object:', notification);
+      return;
+    }
+
     const newNotification: Notification = {
       id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
       timestamp: new Date(),
@@ -88,8 +94,8 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
 
     setNotifications(prev => [newNotification, ...prev]);
 
-    // Auto-close se especificado
-    if (notification.autoClose) {
+    // Auto-close se especificado (verificação segura)
+    if (notification.autoClose === true) {
       setTimeout(() => {
         removeNotification(newNotification.id);
       }, notification.duration || 5000);
@@ -97,7 +103,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
 
     // Enviar notificação do navegador para casos importantes
     if (notification.type === 'error' || notification.type === 'warning') {
-      sendBrowserNotification(notification.title, notification.message);
+      sendBrowserNotification(notification.title || 'Notificação', notification.message || '');
     }
   }, [sendBrowserNotification]);
 

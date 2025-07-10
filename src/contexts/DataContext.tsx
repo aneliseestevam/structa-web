@@ -425,23 +425,30 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, [notificationFunction]);
 
   const updateCompra = useCallback((id: string, compraData: Partial<Compra>) => {
-    // Se a compra foi marcada como entregue, processar a entrega
-    if (compraData.status === 'entregue') {
-      setCompras(prev => {
-        const compra = prev.find(c => c.id === id);
-        if (compra && compra.status !== 'entregue') {
-          processarEntregaCompra(compra);
-        }
-        return prev.map(compra => 
-          compra.id === id ? { ...compra, ...compraData, updatedAt: new Date() } : compra
-        );
-      });
-    } else {
-      setCompras(prev => prev.map(compra => 
-        compra.id === id ? { ...compra, ...compraData, updatedAt: new Date() } : compra
-      ));
-    }
-  }, [processarEntregaCompra]);
+    setCompras(prev => prev.map(compra => 
+      compra.id === id ? { ...compra, ...compraData, updatedAt: new Date() } : compra
+    ));
+  }, []);
+
+  // useEffect para processar entregas quando status muda para 'entregue'
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    // Monitorar mudanças de status das compras
+    const comprasEntregues = compras.filter(compra => compra.status === 'entregue');
+    
+    comprasEntregues.forEach(compra => {
+      // Verificar se já foi processada (evitar duplicações)
+      if (!compra.processedAt) {
+        processarEntregaCompra(compra);
+        
+        // Marcar como processada
+        setCompras(prev => prev.map(c => 
+          c.id === compra.id ? { ...c, processedAt: new Date() } : c
+        ));
+      }
+    });
+  }, [compras, isHydrated, processarEntregaCompra]);
 
   const deleteCompra = useCallback((id: string) => {
     setCompras(prev => prev.filter(compra => compra.id !== id));
